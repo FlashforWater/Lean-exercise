@@ -13,9 +13,9 @@ theorem zero_add_by_reduction : 0 + 3 = 3 := by
   rfl
 
 theorem exercise_double_zero : Sandbox.Basic.Syntax.double 0 = 0 := by
-  sorry
+  rfl
 
 theorem exercise_triple_two : triple 2 = 6 := by
-  sorry
+  rfl
 
 end Sandbox.Exercises.NaturalNumbers
