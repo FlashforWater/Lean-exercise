@@ -954,3 +954,192 @@ Tiny exercise:
 For each pair above, put your cursor on the tactic proof and then on the term
 proof. Notice that Lean accepts both, even though they look different.
 -/
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 0) =
+      Sandbox.Basic.Syntax.double b := by
+  calc
+    -- Write your first equality step here.
+    Sandbox.Basic.Syntax.double (a + 0) = Sandbox.Basic.Syntax.double a := by simp
+    _ = Sandbox.Basic.Syntax.double b := by rw [h]
+
+
+
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (b + 0) =
+      Sandbox.Basic.Syntax.double a := by
+  calc
+    Sandbox.Basic.Syntax.double (b + 0) =
+        Sandbox.Basic.Syntax.double b := by simp
+      -- Simplify b + 0 here.
+    _ = Sandbox.Basic.Syntax.double a := by rw [h]
+      -- Rewrite b back to a here.
+
+
+example (a b : Nat) (h : a = b) :
+    0 + Sandbox.Basic.Syntax.double (a + 0) =
+      Sandbox.Basic.Syntax.double b := by
+  have hd :
+      Sandbox.Basic.Syntax.double a =
+        Sandbox.Basic.Syntax.double b := by
+        rw [h]
+    -- Use h here.
+
+  calc
+    0 + Sandbox.Basic.Syntax.double (a + 0) =
+        Sandbox.Basic.Syntax.double a := by simp
+      -- Simplify here.
+    _ = Sandbox.Basic.Syntax.double b := by exact hd
+      -- Use the named fact hd here.
+
+#check congrArg
+
+example (f : Nat -> Nat) (a b : Nat) (h : a = b) : f a = f b := by
+  exact congrArg f h
+
+
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double a =
+      Sandbox.Basic.Syntax.double b := by
+  exact congrArg Sandbox.Basic.Syntax.double h
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 1) =
+      Sandbox.Basic.Syntax.double (b + 1) := by
+  have hs : a + 1 = b + 1 := by rw [h]
+    -- Rewrite using h.
+
+  exact congrArg Sandbox.Basic.Syntax.double hs
+
+example (a b c : Nat) (hab : a = b) (hbc : b = c) :
+    Sandbox.Basic.Syntax.double a =
+      Sandbox.Basic.Syntax.double c := by
+  calc
+    Sandbox.Basic.Syntax.double a =
+        Sandbox.Basic.Syntax.double b := by
+      exact congrArg Sandbox.Basic.Syntax.double hab
+    _ = Sandbox.Basic.Syntax.double c := by
+      exact congrArg Sandbox.Basic.Syntax.double hbc
+
+
+example (a b : Nat) (h : a = b) :
+    a + 0 = b ∧
+      Sandbox.Basic.Syntax.double a =
+        Sandbox.Basic.Syntax.double b := by
+  constructor
+  · simp [h]-- Prove a + 0 = b.
+  · exact congrArg Sandbox.Basic.Syntax.double h-- Prove double a = double b using congrArg.
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double a =
+      Sandbox.Basic.Syntax.double b := by
+  apply congrArg
+  exact h
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 2) =
+      Sandbox.Basic.Syntax.double (b + 2) := by
+  apply congrArg
+  simp [h]
+  -- Inspect the new goal in InfoView, then solve it.
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 3) =
+      Sandbox.Basic.Syntax.double (b + 3) := by
+  refine congrArg Sandbox.Basic.Syntax.double ?_
+  rw [h]
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 3) =
+      Sandbox.Basic.Syntax.double (b + 3) := by
+  refine congrArg (fun n => Sandbox.Basic.Syntax.double (n + 3)) ?_
+  exact h
+
+
+theorem double_add_preserves_eq
+    (a b k : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + k) =
+      Sandbox.Basic.Syntax.double (b + k) := by
+  refine congrArg (fun n => Sandbox.Basic.Syntax.double (n + k)) ?_
+  exact h
+
+example (x y : Nat) (hxy : x = y) :
+    Sandbox.Basic.Syntax.double (x + 10) =
+      Sandbox.Basic.Syntax.double (y + 10) := by
+  exact double_add_preserves_eq x y 10 hxy
+
+#check double_add_preserves_eq
+
+example (x y : Nat) (hxy : x = y) :
+    Sandbox.Basic.Syntax.double (x + 10) =
+      Sandbox.Basic.Syntax.double (y + 10) := by
+  exact double_add_preserves_eq _ _ _ hxy
+
+example (x y : Nat) (hxy : x = y) :
+    Sandbox.Basic.Syntax.double (x + 10) =
+      Sandbox.Basic.Syntax.double (y + 10) := by
+  exact double_add_preserves_eq (a := x) (b := y) (k := 10) hxy
+
+theorem double_add_preserves_eq_implicit
+    {a b k : Nat} (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + k) =
+      Sandbox.Basic.Syntax.double (b + k) := by
+  exact congrArg
+    (fun n => Sandbox.Basic.Syntax.double (n + k))
+    h
+
+example (x y : Nat) (hxy : x = y) :
+    Sandbox.Basic.Syntax.double (x + 10) =
+      Sandbox.Basic.Syntax.double (y + 10) := by
+  exact double_add_preserves_eq_implicit hxy
+
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 0) =
+      Sandbox.Basic.Syntax.double (b + 0) := by
+  simpa using congrArg Sandbox.Basic.Syntax.double h
+
+
+example (a b : Nat) (h : a = b) :
+    0 + Sandbox.Basic.Syntax.double (a + 0) =
+      Sandbox.Basic.Syntax.double b + 0 := by
+  simpa using congrArg Sandbox.Basic.Syntax.double h
+
+example (a b : Nat) (h : a = b) :
+    Sandbox.Basic.Syntax.double (a + 2) =
+      Sandbox.Basic.Syntax.double (b + 2) := by
+  subst b
+  rfl
+
+example (a b : Nat) (h : a = b) :
+    0 + Sandbox.Basic.Syntax.double (a + 0) =
+      Sandbox.Basic.Syntax.double b + 0 := by
+  subst b
+  simp
+
+
+example (a b c : Nat) (hab : a = b) (hbc : b = c) :
+    a + 0 = c ∧
+      Sandbox.Basic.Syntax.double (a + 1) =
+        Sandbox.Basic.Syntax.double (c + 1) := by
+  constructor
+  · simp [hbc, hab]-- Goal 1: a + 0 = c
+  · subst c -- Goal 2: double (a + 1) = double (c + 1)
+    subst b
+    rfl
+
+theorem zero_add_manual (n : Nat) : 0 + n = n := by
+  induction n with
+  | zero =>
+      rfl
+  | succ n ih =>
+      simp [ih]
+
+theorem add_zero_manual (n : Nat) : n + 0 = n := by
+  induction n with
+  | zero =>
+    rfl-- Base case
+  | succ n ih =>
+    simp [ih]  -- Successor case
